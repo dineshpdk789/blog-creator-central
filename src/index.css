@@ -1,7 +1,24 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Add body background transition for theme switch */
+body {
+  transition: background 0.3s, color 0.3s;
+}
+
+/* Optional improvements to prose for dark mode: */
+.prose {
+  --tw-prose-body: theme('colors.gray.700');
+  --tw-prose-headings: theme('colors.gray.900');
+}
+.dark .prose {
+  --tw-prose-body: theme('colors.gray.200');
+  --tw-prose-headings: theme('colors.gray.100');
+}
+
+/* ... keep existing code (the rest of the css remains the same) ... */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -94,7 +111,6 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
   }

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Post } from '@/types/blog';
 import { useToast } from '@/hooks/use-toast';
+import { Bold, Italic, Underline, Image } from "lucide-react";
 
 interface PostFormProps {
   post?: Post;
@@ -25,10 +25,11 @@ const PostForm = ({ post, onSubmit }: PostFormProps) => {
   const [excerpt, setExcerpt] = React.useState(post?.excerpt || '');
   const [slug, setSlug] = React.useState(post?.slug || '');
   const [imageUrls, setImageUrls] = React.useState<string>(post?.images.join('\n') || '');
-  
+  const contentAreaRef = useRef<HTMLTextAreaElement>(null);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title || !content || !excerpt || !slug) {
       toast({
         title: "Missing fields",
@@ -37,13 +38,13 @@ const PostForm = ({ post, onSubmit }: PostFormProps) => {
       });
       return;
     }
-    
+
     // Process image URLs
     const images = imageUrls
       .split('\n')
       .map(url => url.trim())
       .filter(url => url !== '');
-    
+
     onSubmit({
       title,
       content,
@@ -52,16 +53,39 @@ const PostForm = ({ post, onSubmit }: PostFormProps) => {
       images,
     });
   };
-  
+
   const generateSlug = () => {
     const generatedSlug = title
       .toLowerCase()
       .replace(/[^\w\s-]/g, '')
       .replace(/\s+/g, '-');
-      
     setSlug(generatedSlug);
   };
-  
+
+  // Helper for formatting: Inserts or wraps selection with tags
+  const insertAtSelection = (before: string, after = before) => {
+    const ta = contentAreaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const val = content;
+    const newText =
+      val.slice(0, start) + before + val.slice(start, end) + after + val.slice(end);
+    setContent(newText);
+    // Move caret after the inserted text
+    setTimeout(() => {
+      ta.focus();
+      const caret = start + before.length + (end - start) + after.length;
+      ta.selectionStart = ta.selectionEnd = caret;
+    }, 0);
+  };
+
+  // For inserting image by Unsplash ID
+  const insertImageAtSelection = () => {
+    const unsplashId = prompt("Enter Unsplash photo ID (e.g. photo-12345):");
+    if (!unsplashId) return;
+    insertAtSelection(`[img]${unsplashId}[/img]`, "");
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
@@ -74,7 +98,7 @@ const PostForm = ({ post, onSubmit }: PostFormProps) => {
           required
         />
       </div>
-      
+
       <div className="flex gap-2 items-end">
         <div className="space-y-2 flex-1">
           <Label htmlFor="slug">Slug</Label>
@@ -95,7 +119,7 @@ const PostForm = ({ post, onSubmit }: PostFormProps) => {
           Generate from Title
         </Button>
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="excerpt">Excerpt</Label>
         <Textarea
@@ -108,20 +132,32 @@ const PostForm = ({ post, onSubmit }: PostFormProps) => {
           required
         />
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="content">Content</Label>
+        {/* Formatting controls */}
+        <div className="flex gap-2 mb-1">
+          <Button type="button" variant="ghost" size="icon" aria-label="Bold" onClick={() => insertAtSelection("**", "**")}><Bold /></Button>
+          <Button type="button" variant="ghost" size="icon" aria-label="Italic" onClick={() => insertAtSelection("*", "*")}><Italic /></Button>
+          <Button type="button" variant="ghost" size="icon" aria-label="Underline" onClick={() => insertAtSelection("__", "__")}><Underline /></Button>
+          <Button type="button" variant="ghost" size="icon" aria-label="Add Image" onClick={insertImageAtSelection}><Image /></Button>
+        </div>
         <Textarea
           id="content"
           value={content}
+          ref={contentAreaRef}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="Write your post content here..."
-          className="min-h-[200px]"
+          placeholder="Write your post content here... (use formatting buttons above)"
+          className="min-h-[200px] font-mono"
           rows={10}
           required
         />
+        <div className="text-xs text-gray-500 dark:text-gray-400 flex flex-wrap gap-3">
+          <div>Formatting: <b>**bold**</b>, <i>*italic*</i>, <span style={{ textDecoration: "underline" }}>__underline__</span></div>
+          <div>Image: <code>[img]photo-1234[/img]</code></div>
+        </div>
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="images">
           Images (one Unsplash ID per line)
@@ -138,7 +174,7 @@ const PostForm = ({ post, onSubmit }: PostFormProps) => {
           Enter Unsplash IDs, one per line (e.g., photo-1649972904349-6e44c42644a7)
         </p>
       </div>
-      
+
       <div className="pt-4">
         <Button 
           type="submit" 

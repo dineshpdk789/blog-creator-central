@@ -5,39 +5,37 @@ import Layout from '@/components/Layout';
 import { getPostBySlug } from '@/data/posts';
 import { formatDate } from '@/utils/date';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import { renderRichContent } from '@/utils/renderRichContent';
 
 const Post = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const post = slug ? getPostBySlug(slug) : undefined;
-  
+
   React.useEffect(() => {
     if (!post) {
       navigate('/');
     }
   }, [post, navigate]);
-  
+
   if (!post) {
     return null;
   }
-  
+
   const { title, content, images, createdAt, updatedAt } = post;
-  const formattedContent = content.split('\n\n').map((paragraph, index) => (
-    <p key={index} className="mb-4">{paragraph}</p>
-  ));
-  
+
   return (
     <Layout>
       <article className="max-w-4xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-4">{title}</h1>
-        
-        <div className="text-gray-500 mb-6">
+
+        <div className="text-gray-500 dark:text-gray-300 mb-6">
           <span>Posted on {formatDate(createdAt)}</span>
           {createdAt !== updatedAt && (
             <span className="ml-4">Updated on {formatDate(updatedAt)}</span>
           )}
         </div>
-        
+
         {images.length > 0 && (
           <div className="mb-8">
             {images.length === 1 ? (
@@ -69,9 +67,9 @@ const Post = () => {
             )}
           </div>
         )}
-        
-        <div className="prose prose-lg max-w-none">
-          {formattedContent}
+
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          {renderRichContent(content)}
         </div>
       </article>
     </Layout>

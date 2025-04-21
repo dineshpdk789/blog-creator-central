@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -6,6 +5,7 @@ import PostForm from '@/components/PostForm';
 import { addPost } from '@/data/posts';
 import { checkAuth } from '@/utils/auth';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeProvider } from "next-themes";
 
 const CreatePost = () => {
   const navigate = useNavigate();

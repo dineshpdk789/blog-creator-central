@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -7,6 +6,7 @@ import { getPostBySlug, updatePost, getAllPosts } from '@/data/posts';
 import { checkAuth } from '@/utils/auth';
 import { Post } from '@/types/blog';
 import { useToast } from '@/hooks/use-toast';
+import { ThemeProvider } from "next-themes";
 
 const EditPost = () => {
   const { id } = useParams<{ id: string }>();
