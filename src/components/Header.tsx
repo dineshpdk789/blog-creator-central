@@ -1,0 +1,89 @@
+
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { checkAuth } from '@/utils/auth';
+import { useToast } from '@/hooks/use-toast';
+
+const Header = () => {
+  const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
+  
+  React.useEffect(() => {
+    setIsAdmin(checkAuth());
+  }, []);
+
+  const handleLoginClick = () => {
+    if (isAdmin) {
+      return;
+    }
+    
+    const password = prompt("Enter admin password:");
+    if (password) {
+      const success = require("@/utils/auth").login(password);
+      if (success) {
+        setIsAdmin(true);
+        toast({
+          title: "Success!",
+          description: "You are now logged in as admin.",
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Incorrect password.",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleLogoutClick = () => {
+    require("@/utils/auth").logout();
+    setIsAdmin(false);
+    toast({
+      title: "Logged out",
+      description: "You've been logged out successfully.",
+    });
+  };
+
+  return (
+    <header className="border-b border-blog-border bg-white sticky top-0 z-10">
+      <div className="container max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <Link to="/" className="flex items-center gap-2">
+          <span className="font-bold text-2xl text-blog-primary tracking-tight">BloggerClone</span>
+        </Link>
+        
+        <nav className="flex items-center gap-4">
+          <Link to="/" className="text-gray-700 hover:text-blog-primary transition-colors">
+            Home
+          </Link>
+          
+          {isAdmin ? (
+            <>
+              <Link to="/admin" className="text-gray-700 hover:text-blog-primary transition-colors">
+                Dashboard
+              </Link>
+              <Button 
+                variant="outline" 
+                className="border-blog-primary text-blog-primary hover:bg-blog-primary hover:text-white"
+                onClick={handleLogoutClick}
+              >
+                Logout
+              </Button>
+            </>
+          ) : (
+            <Button 
+              variant="outline" 
+              className="border-blog-primary text-blog-primary hover:bg-blog-primary hover:text-white"
+              onClick={handleLoginClick}
+            >
+              Admin
+            </Button>
+          )}
+        </nav>
+      </div>
+    </header>
+  );
+};
+
+export default Header;
