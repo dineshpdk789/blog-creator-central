@@ -13,15 +13,26 @@ const EditPost = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [post, setPost] = useState<Post | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     const isAdmin = checkAuth();
     if (!isAdmin) {
+      toast({
+        title: "Authentication Required",
+        description: "You must be logged in as admin to edit posts.",
+        variant: "destructive",
+      });
       navigate('/');
       return;
     }
     
     if (!id) {
+      toast({
+        title: "Error",
+        description: "No post ID provided.",
+        variant: "destructive",
+      });
       navigate('/admin');
       return;
     }
@@ -32,9 +43,15 @@ const EditPost = () => {
     if (foundPost) {
       setPost(foundPost);
     } else {
+      toast({
+        title: "Error",
+        description: "Post not found.",
+        variant: "destructive",
+      });
       navigate('/admin');
     }
-  }, [id, navigate]);
+    setIsLoading(false);
+  }, [id, navigate, toast]);
   
   const handleSubmit = (data: {
     title: string;
@@ -65,7 +82,25 @@ const EditPost = () => {
     }
   };
   
-  if (!post) return null;
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Loading post...</p>
+        </div>
+      </Layout>
+    );
+  }
+  
+  if (!post) {
+    return (
+      <Layout>
+        <div className="text-center py-12">
+          <p className="text-gray-500">Post not found</p>
+        </div>
+      </Layout>
+    );
+  }
   
   return (
     <Layout>
