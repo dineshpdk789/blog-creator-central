@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { checkAuth } from '@/utils/auth';
+import { checkAuth, login, logout } from '@/utils/auth';
 import { useToast } from '@/hooks/use-toast';
 
 const Header = () => {
@@ -20,7 +20,7 @@ const Header = () => {
     
     const password = prompt("Enter admin password:");
     if (password) {
-      const success = require("@/utils/auth").login(password);
+      const success = login(password);
       if (success) {
         setIsAdmin(true);
         toast({
@@ -38,7 +38,7 @@ const Header = () => {
   };
 
   const handleLogoutClick = () => {
-    require("@/utils/auth").logout();
+    logout();
     setIsAdmin(false);
     toast({
       title: "Logged out",
