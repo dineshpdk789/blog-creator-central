@@ -1,12 +1,12 @@
 
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Post } from '@/types/blog';
 import { useToast } from '@/hooks/use-toast';
-import { Bold, Italic, Underline, Image, Upload, X } from "lucide-react";
+import { Bold, Italic, Underline, Image, Upload, X, Code, List, ListOrdered, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, Link as LinkIcon } from "lucide-react";
 import { uploadImage } from '@/services/postService';
 
 interface PostFormProps {
@@ -31,6 +31,7 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
   const [uploading, setUploading] = useState(false);
   const contentAreaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropAreaRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,11 +79,26 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     }, 0);
   };
 
+  // HTML formatting helpers
+  const insertHTML = (tag: string) => {
+    const ta = contentAreaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart, end = ta.selectionEnd;
+    const selectedText = content.slice(start, end);
+    
+    insertAtSelection(`<${tag}>`, `</${tag}>`);
+  };
+
   // For inserting image by URL or Unsplash ID
   const insertImageAtSelection = () => {
     const imageUrl = prompt("Enter image URL or Unsplash photo ID (e.g. photo-12345):");
     if (!imageUrl) return;
-    insertAtSelection(`[img]${imageUrl}[/img]`, "");
+    
+    if (imageUrl.startsWith('http')) {
+      insertAtSelection(`<img src="${imageUrl}" alt="Image" />`, "");
+    } else {
+      insertAtSelection(`<img src="https://images.unsplash.com/${imageUrl}" alt="Image" />`, "");
+    }
   };
 
   // Handle file upload
@@ -90,13 +106,23 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     
+    handleFileUpload(Array.from(files));
+  };
+
+  const handleFileUpload = async (files: File[]) => {
     setUploading(true);
     
     try {
-      const uploadPromises = Array.from(files).map(file => uploadImage(file));
+      const uploadPromises = files.map(file => uploadImage(file));
       const uploadedUrls = await Promise.all(uploadPromises);
       
       setImages([...images, ...uploadedUrls]);
+      
+      // Insert images into content area
+      uploadedUrls.forEach(url => {
+        const imgTag = `<img src="${url}" alt="Uploaded image" />\n`;
+        setContent(prevContent => prevContent + imgTag);
+      });
       
       toast({
         title: "Images uploaded",
@@ -117,10 +143,46 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     }
   };
 
+  // Handle drag and drop
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    if (dropAreaRef.current) {
+      dropAreaRef.current.classList.add('bg-gray-100', 'dark:bg-gray-800');
+    }
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    if (dropAreaRef.current) {
+      dropAreaRef.current.classList.remove('bg-gray-100', 'dark:bg-gray-800');
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    if (dropAreaRef.current) {
+      dropAreaRef.current.classList.remove('bg-gray-100', 'dark:bg-gray-800');
+    }
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileUpload(Array.from(e.dataTransfer.files));
+    }
+  }, []);
+
   const removeImage = (index: number) => {
     const newImages = [...images];
     newImages.splice(index, 1);
     setImages(newImages);
+  };
+
+  const insertLink = () => {
+    const url = prompt("Enter URL:");
+    const text = prompt("Enter link text:");
+    if (url && text) {
+      insertAtSelection(`<a href="${url}" target="_blank">`, `${text}</a>`);
+    } else if (url) {
+      insertAtSelection(`<a href="${url}" target="_blank">`, `${url}</a>`);
+    }
   };
 
   return (
@@ -175,43 +237,93 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="content">Content</Label>
+        <Label htmlFor="content">Content (HTML enabled)</Label>
+        
         {/* Formatting controls */}
-        <div className="flex gap-2 mb-1">
-          <Button type="button" variant="ghost" size="icon" aria-label="Bold" onClick={() => insertAtSelection("**", "**")} disabled={isSubmitting}>
-            <Bold />
+        <div className="flex flex-wrap gap-2 mb-1">
+          <Button type="button" variant="outline" size="icon" title="Bold" onClick={() => insertHTML('b')} disabled={isSubmitting}>
+            <Bold size={18} />
           </Button>
-          <Button type="button" variant="ghost" size="icon" aria-label="Italic" onClick={() => insertAtSelection("*", "*")} disabled={isSubmitting}>
-            <Italic />
+          <Button type="button" variant="outline" size="icon" title="Italic" onClick={() => insertHTML('i')} disabled={isSubmitting}>
+            <Italic size={18} />
           </Button>
-          <Button type="button" variant="ghost" size="icon" aria-label="Underline" onClick={() => insertAtSelection("__", "__")} disabled={isSubmitting}>
-            <Underline />
+          <Button type="button" variant="outline" size="icon" title="Underline" onClick={() => insertHTML('u')} disabled={isSubmitting}>
+            <Underline size={18} />
           </Button>
-          <Button type="button" variant="ghost" size="icon" aria-label="Add Image" onClick={insertImageAtSelection} disabled={isSubmitting}>
-            <Image />
+          <Button type="button" variant="outline" size="icon" title="Code" onClick={() => insertHTML('code')} disabled={isSubmitting}>
+            <Code size={18} />
+          </Button>
+          <Button type="button" variant="outline" size="icon" title="Unordered List" onClick={() => insertAtSelection('<ul>\n  <li>', '</li>\n</ul>')} disabled={isSubmitting}>
+            <List size={18} />
+          </Button>
+          <Button type="button" variant="outline" size="icon" title="Ordered List" onClick={() => insertAtSelection('<ol>\n  <li>', '</li>\n</ol>')} disabled={isSubmitting}>
+            <ListOrdered size={18} />
+          </Button>
+          <Button type="button" variant="outline" size="icon" title="Heading 1" onClick={() => insertHTML('h1')} disabled={isSubmitting}>
+            <Heading1 size={18} />
+          </Button>
+          <Button type="button" variant="outline" size="icon" title="Heading 2" onClick={() => insertHTML('h2')} disabled={isSubmitting}>
+            <Heading2 size={18} />
+          </Button>
+          <Button type="button" variant="outline" size="icon" title="Heading 3" onClick={() => insertHTML('h3')} disabled={isSubmitting}>
+            <Heading3 size={18} />
+          </Button>
+          <Button type="button" variant="outline" size="icon" title="Insert Link" onClick={insertLink} disabled={isSubmitting}>
+            <LinkIcon size={18} />
+          </Button>
+          <Button type="button" variant="outline" size="icon" title="Insert Image by URL" onClick={insertImageAtSelection} disabled={isSubmitting}>
+            <Image size={18} />
+          </Button>
+          <Button 
+            type="button" 
+            variant="outline" 
+            size="icon" 
+            title="Drag and drop or click to upload images"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isSubmitting || uploading}
+          >
+            <Upload size={18} />
           </Button>
         </div>
-        <Textarea
-          id="content"
-          value={content}
-          ref={contentAreaRef}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Write your post content here... (use formatting buttons above)"
-          className="min-h-[200px] font-mono"
-          rows={10}
-          required
-          disabled={isSubmitting}
+        
+        <div 
+          ref={dropAreaRef}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className="border-2 border-dashed rounded-md transition-colors p-1"
+        >
+          <Textarea
+            id="content"
+            value={content}
+            ref={contentAreaRef}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Write your post content here... HTML tags are supported for formatting"
+            className="min-h-[300px] font-mono"
+            rows={15}
+            required
+            disabled={isSubmitting}
+          />
+        </div>
+        
+        <input
+          type="file"
+          ref={fileInputRef}
+          className="hidden"
+          accept="image/*"
+          multiple
+          onChange={handleFileChange}
+          disabled={isSubmitting || uploading}
         />
-        <div className="text-xs text-gray-500 dark:text-gray-400 flex flex-wrap gap-3">
-          <div>Formatting: <b>**bold**</b>, <i>*italic*</i>, <span style={{ textDecoration: "underline" }}>__underline__</span></div>
-          <div>Image: <code>[img]photo-1234[/img]</code> or <code>[img]https://example.com/image.jpg[/img]</code></div>
+        
+        <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+          <div className="mb-1"><strong>HTML is enabled</strong>: You can use tags like <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>, <code>&lt;img&gt;</code>, etc.</div>
+          <div>Drag and drop images directly into the editor or use the upload button.</div>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="images">
-          Images
-        </Label>
+        <Label>Uploaded Images</Label>
         
         <div className="flex flex-wrap gap-4 mt-2">
           {images.map((image, index) => (
@@ -220,6 +332,10 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
                 src={image.startsWith('http') ? image : `https://images.unsplash.com/${image}`}
                 alt={`Upload ${index + 1}`}
                 className="w-32 h-32 object-cover rounded-md border"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/placeholder.svg";
+                }}
               />
               <button
                 type="button"
@@ -231,33 +347,7 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
               </button>
             </div>
           ))}
-          
-          <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-md flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              multiple
-              onChange={handleFileChange}
-              disabled={isSubmitting || uploading}
-            />
-            <Button 
-              type="button" 
-              variant="ghost" 
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isSubmitting || uploading}
-            >
-              <Upload size={20} className="mr-1" />
-              {uploading ? 'Uploading...' : 'Upload'}
-            </Button>
-          </div>
         </div>
-        
-        <p className="text-xs text-gray-500">
-          Upload images or use Unsplash IDs in your content
-        </p>
       </div>
 
       <div className="pt-4">
@@ -269,7 +359,7 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
           {isSubmitting ? (
             <>
               <span className="mr-2 inline-block w-4 h-4 border-2 border-t-transparent border-white rounded-full animate-spin"></span>
-              {post ? 'Updating Post...' : 'Creating Post...'}
+              {post ? 'Updating Post...' : 'Create Post...'}
             </>
           ) : (
             post ? 'Update Post' : 'Create Post'

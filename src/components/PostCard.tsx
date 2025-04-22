@@ -16,12 +16,16 @@ const PostCard = ({ post }: PostCardProps) => {
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <Link to={`/post/${slug}`}>
-        {images.length > 0 && (
+        {images && images.length > 0 && (
           <AspectRatio ratio={16 / 9}>
             <img 
-              src={`https://images.unsplash.com/${images[0]}`}
+              src={images[0].startsWith('http') ? images[0] : `https://images.unsplash.com/${images[0]}`}
               alt={title}
               className="object-cover w-full h-full"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/placeholder.svg";
+              }}
             />
           </AspectRatio>
         )}

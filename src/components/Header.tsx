@@ -33,7 +33,7 @@ const Header = () => {
             </div>
           ) : (
             <Link to="/auth">
-              <Button variant="outline" size="sm">Login / Register</Button>
+              <Button variant="outline" size="sm">Login</Button>
             </Link>
           )}
         </div>
