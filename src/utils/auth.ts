@@ -33,6 +33,11 @@ export const checkAuth = (): boolean => {
     return false;
   }
   
+  // Update the timestamp to extend the session
+  if (storedAuth === "true") {
+    localStorage.setItem("authTimestamp", Date.now().toString());
+  }
+  
   isAuthenticated = storedAuth === "true";
   return isAuthenticated;
 };

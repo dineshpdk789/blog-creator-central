@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -6,7 +7,6 @@ import { getPostBySlug, updatePost, getAllPosts } from '@/data/posts';
 import { checkAuth } from '@/utils/auth';
 import { Post } from '@/types/blog';
 import { useToast } from '@/hooks/use-toast';
-import { ThemeProvider } from "next-themes";
 
 const EditPost = () => {
   const { id } = useParams<{ id: string }>();
@@ -86,7 +86,7 @@ const EditPost = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <p className="text-gray-500">Loading post...</p>
+          <p className="text-gray-500 dark:text-gray-400">Loading post...</p>
         </div>
       </Layout>
     );
@@ -96,7 +96,7 @@ const EditPost = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <p className="text-gray-500">Post not found</p>
+          <p className="text-gray-500 dark:text-gray-400">Post not found</p>
         </div>
       </Layout>
     );
@@ -106,7 +106,7 @@ const EditPost = () => {
     <Layout>
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Edit Post</h1>
-        <p className="text-gray-600">Update your blog post content</p>
+        <p className="text-gray-600 dark:text-gray-400">Update your blog post content</p>
       </div>
       
       <div className="max-w-3xl mx-auto">

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -5,7 +6,6 @@ import PostForm from '@/components/PostForm';
 import { addPost } from '@/data/posts';
 import { checkAuth } from '@/utils/auth';
 import { useToast } from '@/hooks/use-toast';
-import { ThemeProvider } from "next-themes";
 
 const CreatePost = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const CreatePost = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <p className="text-gray-500">Checking authentication...</p>
+          <p className="text-gray-500 dark:text-gray-400">Checking authentication...</p>
         </div>
       </Layout>
     );
@@ -63,7 +63,7 @@ const CreatePost = () => {
     <Layout>
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">Create New Post</h1>
-        <p className="text-gray-600">Write your thoughts and share them with the world</p>
+        <p className="text-gray-600 dark:text-gray-400">Write your thoughts and share them with the world</p>
       </div>
       
       <div className="max-w-3xl mx-auto">
