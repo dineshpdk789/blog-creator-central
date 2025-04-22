@@ -70,7 +70,7 @@ export const createPost = async (post: Omit<Post, 'id' | 'created_at' | 'updated
     .insert({
       ...post,
       user_id: userData.user.id
-    })
+    } as any)
     .select()
     .single();
 
@@ -89,7 +89,7 @@ export const updatePost = async (id: string, updates: Partial<Post>): Promise<Po
     .update({
       ...updates,
       updated_at: new Date().toISOString()
-    })
+    } as any)
     .eq('id', id)
     .select()
     .single();

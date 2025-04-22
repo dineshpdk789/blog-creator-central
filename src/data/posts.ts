@@ -9,8 +9,9 @@ export const posts: Post[] = [
     excerpt: "Explore the fundamental concepts and tools needed to start your journey in web development.",
     slug: "getting-started-with-web-development",
     images: ["photo-1486312338219-ce68d2c6f44d", "photo-1498050108023-c5249f4df085"],
-    createdAt: "2025-04-15T10:30:00Z",
-    updatedAt: "2025-04-15T10:30:00Z"
+    created_at: "2025-04-15T10:30:00Z",
+    updated_at: "2025-04-15T10:30:00Z",
+    user_id: "1"
   },
   {
     id: "2",
@@ -19,8 +20,9 @@ export const posts: Post[] = [
     excerpt: "Discover how AI is evolving and the potential impact it will have on various industries in the coming years.",
     slug: "future-of-artificial-intelligence",
     images: ["photo-1461749280684-dccba630e2f6", "photo-1531297484001-80022131f5a1"],
-    createdAt: "2025-04-10T14:45:00Z",
-    updatedAt: "2025-04-12T09:15:00Z"
+    created_at: "2025-04-10T14:45:00Z",
+    updated_at: "2025-04-12T09:15:00Z",
+    user_id: "1"
   },
   {
     id: "3",
@@ -29,15 +31,16 @@ export const posts: Post[] = [
     excerpt: "Journey through some of the most spectacular natural phenomena and landscapes our planet has to offer.",
     slug: "exploring-natures-wonders",
     images: ["photo-1469474968028-56623f02e42e"],
-    createdAt: "2025-04-05T08:20:00Z",
-    updatedAt: "2025-04-05T08:20:00Z"
+    created_at: "2025-04-05T08:20:00Z",
+    updated_at: "2025-04-05T08:20:00Z",
+    user_id: "1"
   }
 ];
 
 // Helper functions to work with our mock data
 export const getAllPosts = (): Post[] => {
   return [...posts].sort((a, b) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 };
 
@@ -45,12 +48,12 @@ export const getPostBySlug = (slug: string): Post | undefined => {
   return posts.find(post => post.slug === slug);
 };
 
-export const addPost = (post: Omit<Post, 'id' | 'createdAt' | 'updatedAt'>): Post => {
+export const addPost = (post: Omit<Post, 'id' | 'created_at' | 'updated_at'>): Post => {
   const newPost: Post = {
     ...post,
     id: Date.now().toString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   };
   
   posts.unshift(newPost);
@@ -64,7 +67,7 @@ export const updatePost = (id: string, updates: Partial<Post>): Post | undefined
   posts[index] = {
     ...posts[index],
     ...updates,
-    updatedAt: new Date().toISOString()
+    updated_at: new Date().toISOString()
   };
   
   return posts[index];

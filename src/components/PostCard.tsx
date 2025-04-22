@@ -11,7 +11,7 @@ interface PostCardProps {
 }
 
 const PostCard = ({ post }: PostCardProps) => {
-  const { title, excerpt, slug, images, createdAt } = post;
+  const { title, excerpt, slug, images, created_at } = post;
   
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
@@ -35,7 +35,7 @@ const PostCard = ({ post }: PostCardProps) => {
         </CardContent>
         
         <CardFooter className="text-sm text-gray-500">
-          {formatDate(createdAt)}
+          {formatDate(created_at)}
         </CardFooter>
       </Link>
     </Card>
