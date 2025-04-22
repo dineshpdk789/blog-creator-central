@@ -1,40 +1,27 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import PostForm from '@/components/PostForm';
-import { addPost } from '@/data/posts';
-import { checkAuth } from '@/utils/auth';
+import { createPost } from '@/services/postService';
 import { useToast } from '@/hooks/use-toast';
 
 const CreatePost = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
-  useEffect(() => {
-    const isAdmin = checkAuth();
-    if (!isAdmin) {
-      toast({
-        title: "Authentication Required",
-        description: "You must be logged in as admin to create posts.",
-        variant: "destructive",
-      });
-      navigate('/');
-    } else {
-      setIsAuthChecked(true);
-    }
-  }, [navigate, toast]);
-  
-  const handleSubmit = (data: {
+  const handleSubmit = async (data: {
     title: string;
     content: string;
     excerpt: string;
     slug: string;
     images: string[];
   }) => {
+    setIsSubmitting(true);
+    
     try {
-      const newPost = addPost(data);
+      const newPost = await createPost(data);
       toast({
         title: "Post created",
         description: "Your post has been published successfully.",
@@ -43,21 +30,13 @@ const CreatePost = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem creating the post.",
+        description: error instanceof Error ? error.message : "There was a problem creating the post.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
-  
-  if (!isAuthChecked) {
-    return (
-      <Layout>
-        <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">Checking authentication...</p>
-        </div>
-      </Layout>
-    );
-  }
   
   return (
     <Layout>
@@ -67,7 +46,7 @@ const CreatePost = () => {
       </div>
       
       <div className="max-w-3xl mx-auto">
-        <PostForm onSubmit={handleSubmit} />
+        <PostForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       </div>
     </Layout>
   );

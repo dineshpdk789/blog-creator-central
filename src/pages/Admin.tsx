@@ -1,54 +1,53 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { getAllPosts, deletePost } from '@/data/posts';
-import { Post } from '@/types/blog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { fetchAllPosts, deletePost } from '@/services/postService';
 import { formatDate } from '@/utils/date';
-import { checkAuth } from '@/utils/auth';
 import { PenIcon, TrashIcon, PlusIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [posts, setPosts] = React.useState<Post[]>([]);
-  const [deleteDialog, setDeleteDialog] = React.useState<{ open: boolean; postId: string; title: string }>({
+  const queryClient = useQueryClient();
+  
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; postId: string; title: string }>({
     open: false,
     postId: '',
     title: '',
   });
   
-  React.useEffect(() => {
-    const isAdmin = checkAuth();
-    if (!isAdmin) {
-      navigate('/');
-      return;
-    }
-    
-    const fetchedPosts = getAllPosts();
-    setPosts(fetchedPosts);
-  }, [navigate]);
+  const { data: posts = [], isLoading, error } = useQuery({
+    queryKey: ['posts'],
+    queryFn: fetchAllPosts
+  });
   
-  const handleDeletePost = (id: string) => {
-    const success = deletePost(id);
-    if (success) {
-      setPosts(posts.filter(post => post.id !== id));
+  const deleteMutation = useMutation({
+    mutationFn: deletePost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
       setDeleteDialog({ open: false, postId: '', title: '' });
       toast({
         title: "Post deleted",
         description: "The post has been successfully deleted.",
       });
-    } else {
+    },
+    onError: (error) => {
       toast({
         title: "Error",
-        description: "There was a problem deleting the post.",
+        description: error instanceof Error ? error.message : "There was a problem deleting the post.",
         variant: "destructive",
       });
     }
+  });
+  
+  const handleDeletePost = (id: string) => {
+    deleteMutation.mutate(id);
   };
   
   return (
@@ -67,7 +66,16 @@ const Admin = () => {
         </Link>
       </div>
       
-      {posts.length === 0 ? (
+      {isLoading ? (
+        <div className="text-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blog-primary mx-auto"></div>
+          <p className="mt-4 text-gray-500">Loading posts...</p>
+        </div>
+      ) : error ? (
+        <div className="text-center py-12">
+          <p className="text-red-500">Error loading posts. Please try again later.</p>
+        </div>
+      ) : posts.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No posts yet. Create your first post!</p>
         </div>
@@ -93,7 +101,7 @@ const Admin = () => {
                     </Link>
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
-                    {formatDate(post.createdAt)}
+                    {formatDate(post.created_at)}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
@@ -142,14 +150,16 @@ const Admin = () => {
             <Button 
               variant="outline" 
               onClick={() => setDeleteDialog({ open: false, postId: '', title: '' })}
+              disabled={deleteMutation.isPending}
             >
               Cancel
             </Button>
             <Button 
               variant="destructive" 
               onClick={() => handleDeletePost(deleteDialog.postId)}
+              disabled={deleteMutation.isPending}
             >
-              Delete
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
             </Button>
           </div>
         </DialogContent>

@@ -1,10 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import PostForm from '@/components/PostForm';
-import { getPostBySlug, updatePost, getAllPosts } from '@/data/posts';
-import { checkAuth } from '@/utils/auth';
+import { fetchPostById, updatePost } from '@/services/postService';
 import { Post } from '@/types/blog';
 import { useToast } from '@/hooks/use-toast';
 
@@ -12,73 +12,51 @@ const EditPost = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [post, setPost] = useState<Post | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const { data: post, isLoading, error } = useQuery({
+    queryKey: ['post', id],
+    queryFn: () => id ? fetchPostById(id) : null,
+    enabled: !!id
+  });
   
   useEffect(() => {
-    const isAdmin = checkAuth();
-    if (!isAdmin) {
-      toast({
-        title: "Authentication Required",
-        description: "You must be logged in as admin to edit posts.",
-        variant: "destructive",
-      });
-      navigate('/');
-      return;
-    }
-    
-    if (!id) {
+    if (error) {
       toast({
         title: "Error",
-        description: "No post ID provided.",
-        variant: "destructive",
-      });
-      navigate('/admin');
-      return;
-    }
-    
-    const posts = getAllPosts();
-    const foundPost = posts.find(post => post.id === id);
-    
-    if (foundPost) {
-      setPost(foundPost);
-    } else {
-      toast({
-        title: "Error",
-        description: "Post not found.",
+        description: "Failed to load post for editing.",
         variant: "destructive",
       });
       navigate('/admin');
     }
-    setIsLoading(false);
-  }, [id, navigate, toast]);
+  }, [error, navigate, toast]);
   
-  const handleSubmit = (data: {
+  const handleSubmit = async (data: {
     title: string;
     content: string;
     excerpt: string;
     slug: string;
     images: string[];
   }) => {
+    if (!id) return;
+    
+    setIsSubmitting(true);
+    
     try {
-      if (id) {
-        const updatedPost = updatePost(id, data);
-        if (updatedPost) {
-          toast({
-            title: "Post updated",
-            description: "Your post has been updated successfully.",
-          });
-          navigate(`/post/${updatedPost.slug}`);
-        } else {
-          throw new Error("Failed to update post");
-        }
-      }
+      const updatedPost = await updatePost(id, data);
+      toast({
+        title: "Post updated",
+        description: "Your post has been updated successfully.",
+      });
+      navigate(`/post/${updatedPost.slug}`);
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem updating the post.",
+        description: error instanceof Error ? error.message : "There was a problem updating the post.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -86,7 +64,8 @@ const EditPost = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">Loading post...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blog-primary mx-auto"></div>
+          <p className="mt-4 text-gray-500">Loading post...</p>
         </div>
       </Layout>
     );
@@ -96,7 +75,7 @@ const EditPost = () => {
     return (
       <Layout>
         <div className="text-center py-12">
-          <p className="text-gray-500 dark:text-gray-400">Post not found</p>
+          <p className="text-gray-500">Post not found</p>
         </div>
       </Layout>
     );
@@ -110,7 +89,7 @@ const EditPost = () => {
       </div>
       
       <div className="max-w-3xl mx-auto">
-        <PostForm post={post} onSubmit={handleSubmit} />
+        <PostForm post={post} onSubmit={handleSubmit} isSubmitting={isSubmitting} />
       </div>
     </Layout>
   );
