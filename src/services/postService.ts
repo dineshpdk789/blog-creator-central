@@ -2,11 +2,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Post } from "@/types/blog";
 import { PostgrestError } from "@supabase/supabase-js";
+import { Database } from "@/integrations/supabase/types";
 
 // Get all posts
 export const fetchAllPosts = async (): Promise<Post[]> => {
   const { data, error } = await supabase
-    .from('posts' as any)
+    .from('posts')
     .select('*')
     .order('created_at', { ascending: false });
 
@@ -21,7 +22,7 @@ export const fetchAllPosts = async (): Promise<Post[]> => {
 // Get post by slug
 export const fetchPostBySlug = async (slug: string): Promise<Post | null> => {
   const { data, error } = await supabase
-    .from('posts' as any)
+    .from('posts')
     .select('*')
     .eq('slug', slug)
     .single();
@@ -41,7 +42,7 @@ export const fetchPostBySlug = async (slug: string): Promise<Post | null> => {
 // Get post by ID
 export const fetchPostById = async (id: string): Promise<Post | null> => {
   const { data, error } = await supabase
-    .from('posts' as any)
+    .from('posts')
     .select('*')
     .eq('id', id)
     .single();
@@ -67,7 +68,7 @@ export const createPost = async (post: Omit<Post, 'id' | 'created_at' | 'updated
   }
   
   const { data, error } = await supabase
-    .from('posts' as any)
+    .from('posts')
     .insert({
       ...post,
       user_id: userData.user.id
@@ -86,7 +87,7 @@ export const createPost = async (post: Omit<Post, 'id' | 'created_at' | 'updated
 // Update an existing post
 export const updatePost = async (id: string, updates: Partial<Post>): Promise<Post> => {
   const { data, error } = await supabase
-    .from('posts' as any)
+    .from('posts')
     .update({
       ...updates,
       updated_at: new Date().toISOString()
@@ -106,7 +107,7 @@ export const updatePost = async (id: string, updates: Partial<Post>): Promise<Po
 // Delete a post
 export const deletePost = async (id: string): Promise<boolean> => {
   const { error } = await supabase
-    .from('posts' as any)
+    .from('posts')
     .delete()
     .eq('id', id);
 
