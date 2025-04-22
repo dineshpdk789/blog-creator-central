@@ -17,7 +17,6 @@ const Auth = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Redirect if user is already logged in
     if (user) {
       navigate('/');
     }
@@ -51,7 +50,7 @@ const Auth = () => {
   return (
     <Layout>
       <div className="max-w-md mx-auto mt-8 p-6 border rounded-lg shadow-lg bg-card">
-        <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Administrator Login</h1>
         
         <form onSubmit={handleSignIn} className="space-y-4">
           <div>
@@ -83,10 +82,6 @@ const Auth = () => {
           >
             {isSubmitting ? "Logging in..." : "Login"}
           </Button>
-          
-          <p className="text-center text-sm text-gray-500">
-            Contact administrator to request an account
-          </p>
         </form>
       </div>
     </Layout>

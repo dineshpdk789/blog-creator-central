@@ -21,7 +21,7 @@ const Header = () => {
           {user ? (
             <div className="flex items-center gap-2">
               <Link to="/admin">
-                <Button variant="outline" size="sm">Dashboard</Button>
+                <Button variant="outline" size="sm">Admin Dashboard</Button>
               </Link>
               <Button 
                 variant="ghost" 
@@ -33,7 +33,7 @@ const Header = () => {
             </div>
           ) : (
             <Link to="/auth">
-              <Button variant="outline" size="sm">Login</Button>
+              <Button variant="outline" size="sm">Admin Login</Button>
             </Link>
           )}
         </div>
