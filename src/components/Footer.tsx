@@ -30,6 +30,11 @@ const Footer = () => {
                   Admin Dashboard
                 </Link>
               </li>
+              <li>
+                <Link to="/about" className="text-gray-600 hover:text-blog-primary transition-colors">
+                  About
+                </Link>
+              </li>
             </ul>
           </div>
           
