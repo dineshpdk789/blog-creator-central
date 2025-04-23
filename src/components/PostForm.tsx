@@ -6,8 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Post } from '@/types/blog';
 import { useToast } from '@/hooks/use-toast';
-import { Bold, Italic, Underline, Image, Upload, X, Code, List, ListOrdered, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, Link as LinkIcon, Eye } from "lucide-react";
 import { uploadImage } from '@/services/postService';
+import EditorToolbar from './EditorToolbar';
+import ContentEditor from './ContentEditor';
+import ContentPreview from './ContentPreview';
+import ImagesUploadGallery from './ImagesUploadGallery';
 
 interface PostFormProps {
   post?: Post;
@@ -72,7 +75,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     const newText =
       val.slice(0, start) + before + val.slice(start, end) + after + val.slice(end);
     setContent(newText);
-    // Move caret after the inserted text
     setTimeout(() => {
       ta.focus();
       const caret = start + before.length + (end - start) + after.length;
@@ -81,12 +83,14 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
   };
 
   // HTML formatting helpers
-  const insertHTML = (tag: string) => {
-    const ta = contentAreaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart, end = ta.selectionEnd;
-    const selectedText = content.slice(start, end);
-    insertAtSelection(`<${tag}>`, `</${tag}>`);
+  const handleFormat = (tag: string) => {
+    if (tag === "ul") {
+      insertAtSelection('<ul>\n  <li>', '</li>\n</ul>');
+    } else if (tag === "ol") {
+      insertAtSelection('<ol>\n  <li>', '</li>\n</ol>');
+    } else {
+      insertAtSelection(`<${tag}>`, `</${tag}>`);
+    }
   };
 
   // For inserting image by URL or Unsplash ID
@@ -116,7 +120,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
 
       setImages([...images, ...uploadedUrls]);
 
-      // Insert images into content area as <img>
       uploadedUrls.forEach(url => {
         const imgTag = `<img src="${url}" alt="Uploaded image" />\n`;
         setContent(prevContent => prevContent + imgTag);
@@ -134,7 +137,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
       });
     } finally {
       setUploading(false);
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -161,7 +163,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     if (dropAreaRef.current) {
       dropAreaRef.current.classList.remove('bg-gray-100', 'dark:bg-gray-800');
     }
-
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFileUpload(Array.from(e.dataTransfer.files));
     }
@@ -209,15 +210,13 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
             disabled={isSubmitting}
           />
         </div>
-        <Button 
-          type="button" 
-          variant="secondary" 
+        <Button
+          type="button"
+          variant="secondary"
           onClick={generateSlug}
           className="mb-[1px]"
           disabled={isSubmitting}
-        >
-          Generate from Title
-        </Button>
+        >Generate from Title</Button>
       </div>
 
       <div className="space-y-2">
@@ -237,83 +236,32 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
       <div className="space-y-2">
         <div className="flex items-center">
           <Label htmlFor="content">Content (HTML supported)</Label>
-          <Button 
-            type="button" 
-            variant={showPreview ? "secondary" : "outline"}
-            size="sm"
-            className="ml-4"
-            onClick={() => setShowPreview(v => !v)}
-          >
-            <Eye size={16} className="mr-1" /> {showPreview ? "Hide" : "Show"} Preview
-          </Button>
         </div>
-        
-        <div className="flex flex-wrap gap-2 mb-1">
-          <Button type="button" variant="outline" size="icon" title="Bold" onClick={() => insertHTML('b')} disabled={isSubmitting}>
-            <Bold size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Italic" onClick={() => insertHTML('i')} disabled={isSubmitting}>
-            <Italic size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Underline" onClick={() => insertHTML('u')} disabled={isSubmitting}>
-            <Underline size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Code" onClick={() => insertHTML('code')} disabled={isSubmitting}>
-            <Code size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Unordered List" onClick={() => insertAtSelection('<ul>\n  <li>', '</li>\n</ul>')} disabled={isSubmitting}>
-            <List size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Ordered List" onClick={() => insertAtSelection('<ol>\n  <li>', '</li>\n</ol>')} disabled={isSubmitting}>
-            <ListOrdered size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Heading 1" onClick={() => insertHTML('h1')} disabled={isSubmitting}>
-            <Heading1 size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Heading 2" onClick={() => insertHTML('h2')} disabled={isSubmitting}>
-            <Heading2 size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Heading 3" onClick={() => insertHTML('h3')} disabled={isSubmitting}>
-            <Heading3 size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Insert Link" onClick={insertLink} disabled={isSubmitting}>
-            <LinkIcon size={18} />
-          </Button>
-          <Button type="button" variant="outline" size="icon" title="Insert Image by URL" onClick={insertImageAtSelection} disabled={isSubmitting}>
-            <Image size={18} />
-          </Button>
-          <Button 
-            type="button" 
-            variant="outline" 
-            size="icon" 
-            title="Drag and drop or click to upload images"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isSubmitting || uploading}
-          >
-            <Upload size={18} />
-          </Button>
-        </div>
-        
-        <div 
-          ref={dropAreaRef}
+
+        {/* Toolbar */}
+        <EditorToolbar
+          isSubmitting={isSubmitting}
+          onFormat={handleFormat}
+          onInsertLink={insertLink}
+          onInsertImageByUrl={insertImageAtSelection}
+          onClickUploadImage={() => fileInputRef.current?.click()}
+          uploading={uploading}
+          showPreview={showPreview}
+          onTogglePreview={() => setShowPreview(v => !v)}
+        />
+
+        {/* Content Editor */}
+        <ContentEditor
+          value={content}
+          onChange={setContent}
+          isSubmitting={isSubmitting}
+          textareaRef={contentAreaRef}
+          dropAreaRef={dropAreaRef}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className="border-2 border-dashed rounded-md transition-colors p-1"
-        >
-          <Textarea
-            id="content"
-            value={content}
-            ref={contentAreaRef}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your post content here... ALL HTML tags supported (img, code, p, h1...etc)"
-            className="min-h-[300px] font-mono"
-            rows={15}
-            required
-            disabled={isSubmitting}
-          />
-        </div>
-        
+        />
+
         <input
           type="file"
           ref={fileInputRef}
@@ -333,46 +281,16 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
       </div>
 
       {/* Preview section */}
-      {showPreview && (
-        <div className="pt-4">
-          <Label>Content Preview</Label>
-          <div className="prose prose-lg dark:prose-invert bg-gray-50 dark:bg-zinc-900 p-4 rounded shadow-inner min-h-[120px] overflow-x-auto">
-            <div dangerouslySetInnerHTML={{ __html: content }} />
-          </div>
-        </div>
-      )}
+      {showPreview && <ContentPreview content={content} />}
 
       <div className="space-y-2">
         <Label>Uploaded Images</Label>
-        
-        <div className="flex flex-wrap gap-4 mt-2">
-          {images.map((image, index) => (
-            <div key={index} className="relative group">
-              <img 
-                src={image.startsWith('http') ? image : `https://images.unsplash.com/${image}`}
-                alt={`Upload ${index + 1}`}
-                className="w-32 h-32 object-cover rounded-md border"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = "/placeholder.svg";
-                }}
-              />
-              <button
-                type="button"
-                className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                onClick={() => removeImage(index)}
-                disabled={isSubmitting}
-              >
-                <X size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
+        <ImagesUploadGallery images={images} onRemoveImage={removeImage} isSubmitting={isSubmitting} />
       </div>
 
       <div className="pt-4">
-        <Button 
-          type="submit" 
+        <Button
+          type="submit"
           className="w-full bg-blog-primary hover:bg-blog-primary/90"
           disabled={isSubmitting}
         >
