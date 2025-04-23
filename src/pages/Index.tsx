@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import PostCard from '@/components/PostCard';
@@ -10,7 +10,17 @@ const Index = () => {
     queryKey: ['posts'],
     queryFn: fetchAllPosts
   });
-  
+
+  // Search
+  const [search, setSearch] = useState("");
+  const filteredPosts = useMemo(() => {
+    if (!search) return posts;
+    const s = search.toLowerCase();
+    return posts.filter(post =>
+      (post.title?.toLowerCase().includes(s) || post.excerpt?.toLowerCase().includes(s) || post.content?.toLowerCase().includes(s))
+    );
+  }, [search, posts]);
+
   return (
     <Layout>
       <div className="mb-8">
@@ -18,6 +28,17 @@ const Index = () => {
         <p className="text-gray-600 text-lg">Discover the latest articles and insights</p>
       </div>
       
+      {/* Search input */}
+      <div className="mb-6 flex justify-center">
+        <input
+          className="border rounded-md px-4 py-2 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blog-primary"
+          type="text"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search posts by title, summary, or content..."
+        />
+      </div>
+
       {isLoading && (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blog-primary mx-auto"></div>
@@ -31,13 +52,13 @@ const Index = () => {
         </div>
       )}
       
-      {!isLoading && posts.length === 0 ? (
+      {!isLoading && filteredPosts.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No posts found. Check back later!</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => (
+          {filteredPosts.map((post) => (
             <PostCard key={post.id} post={post} />
           ))}
         </div>

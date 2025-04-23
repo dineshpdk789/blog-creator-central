@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Post } from '@/types/blog';
 import { useToast } from '@/hooks/use-toast';
-import { Bold, Italic, Underline, Image, Upload, X, Code, List, ListOrdered, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, Link as LinkIcon } from "lucide-react";
+import { Bold, Italic, Underline, Image, Upload, X, Code, List, ListOrdered, Heading1, Heading2, Heading3, AlignLeft, AlignCenter, AlignRight, Link as LinkIcon, Eye } from "lucide-react";
 import { uploadImage } from '@/services/postService';
 
 interface PostFormProps {
@@ -29,6 +29,7 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
   const [slug, setSlug] = useState(post?.slug || '');
   const [images, setImages] = useState<string[]>(post?.images || []);
   const [uploading, setUploading] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const contentAreaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropAreaRef = useRef<HTMLDivElement>(null);
@@ -85,7 +86,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     if (!ta) return;
     const start = ta.selectionStart, end = ta.selectionEnd;
     const selectedText = content.slice(start, end);
-    
     insertAtSelection(`<${tag}>`, `</${tag}>`);
   };
 
@@ -93,7 +93,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
   const insertImageAtSelection = () => {
     const imageUrl = prompt("Enter image URL or Unsplash photo ID (e.g. photo-12345):");
     if (!imageUrl) return;
-    
     if (imageUrl.startsWith('http')) {
       insertAtSelection(`<img src="${imageUrl}" alt="Image" />`, "");
     } else {
@@ -105,25 +104,24 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-    
     handleFileUpload(Array.from(files));
   };
 
   const handleFileUpload = async (files: File[]) => {
     setUploading(true);
-    
+
     try {
       const uploadPromises = files.map(file => uploadImage(file));
       const uploadedUrls = await Promise.all(uploadPromises);
-      
+
       setImages([...images, ...uploadedUrls]);
-      
-      // Insert images into content area
+
+      // Insert images into content area as <img>
       uploadedUrls.forEach(url => {
         const imgTag = `<img src="${url}" alt="Uploaded image" />\n`;
         setContent(prevContent => prevContent + imgTag);
       });
-      
+
       toast({
         title: "Images uploaded",
         description: `Successfully uploaded ${files.length} image${files.length > 1 ? 's' : ''}.`,
@@ -163,7 +161,7 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     if (dropAreaRef.current) {
       dropAreaRef.current.classList.remove('bg-gray-100', 'dark:bg-gray-800');
     }
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFileUpload(Array.from(e.dataTransfer.files));
     }
@@ -237,9 +235,19 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="content">Content (HTML enabled)</Label>
+        <div className="flex items-center">
+          <Label htmlFor="content">Content (HTML supported)</Label>
+          <Button 
+            type="button" 
+            variant={showPreview ? "secondary" : "outline"}
+            size="sm"
+            className="ml-4"
+            onClick={() => setShowPreview(v => !v)}
+          >
+            <Eye size={16} className="mr-1" /> {showPreview ? "Hide" : "Show"} Preview
+          </Button>
+        </div>
         
-        {/* Formatting controls */}
         <div className="flex flex-wrap gap-2 mb-1">
           <Button type="button" variant="outline" size="icon" title="Bold" onClick={() => insertHTML('b')} disabled={isSubmitting}>
             <Bold size={18} />
@@ -298,7 +306,7 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
             value={content}
             ref={contentAreaRef}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Write your post content here... HTML tags are supported for formatting"
+            placeholder="Write your post content here... ALL HTML tags supported (img, code, p, h1...etc)"
             className="min-h-[300px] font-mono"
             rows={15}
             required
@@ -315,12 +323,24 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
           onChange={handleFileChange}
           disabled={isSubmitting || uploading}
         />
-        
+
         <div className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-          <div className="mb-1"><strong>HTML is enabled</strong>: You can use tags like <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>, <code>&lt;img&gt;</code>, etc.</div>
-          <div>Drag and drop images directly into the editor or use the upload button.</div>
+          <div className="mb-1">
+            <strong>Supports raw HTML</strong>: You can use <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>, <code>&lt;img&gt;</code>, <code>&lt;code&gt;</code>, etc.
+          </div>
+          <div>Drag and drop images directly into editor or use the upload button.</div>
         </div>
       </div>
+
+      {/* Preview section */}
+      {showPreview && (
+        <div className="pt-4">
+          <Label>Content Preview</Label>
+          <div className="prose prose-lg dark:prose-invert bg-gray-50 dark:bg-zinc-900 p-4 rounded shadow-inner min-h-[120px] overflow-x-auto">
+            <div dangerouslySetInnerHTML={{ __html: content }} />
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label>Uploaded Images</Label>

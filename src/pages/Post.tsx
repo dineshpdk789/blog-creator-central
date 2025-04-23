@@ -92,7 +92,8 @@ const Post = () => {
         )}
 
         <div className="prose prose-lg max-w-none dark:prose-invert">
-          {renderRichContent(content)}
+          {/* Render raw HTML as content */}
+          <div dangerouslySetInnerHTML={{ __html: content }} />
         </div>
       </article>
     </Layout>
