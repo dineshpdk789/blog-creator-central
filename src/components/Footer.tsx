@@ -1,6 +1,12 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import github from '../../public/github.png';
+import linkedin from '../../public/linkedin.png';
+import gmail from '../../public/gmail.png';
+import twitter from '../../public/twitter.png';
+import instagram from '../../public/instagram.png';
+
 
 
 const Footer = () => {
@@ -57,19 +63,19 @@ const Footer = () => {
           <div className="container mx-auto text-center">
         <div className="social-icons flex justify-center items-center space-x-4">
           <a href="https://www.linkedin.com/in/dineshpdk789/" target="_blank" rel="noopener noreferrer">
-            <img src='public\linkedin.png' className="w-6 h-6 text-blue-500 hover:text-blue-700" />
+            <img src={linkedin} className="w-6 h-6 text-blue-500 hover:text-blue-700" />
           </a>
           <a href="https://www.instagram.com/dineshpdk789/" target="_blank" rel="noopener noreferrer">
-            <img src='public\instagram.png' className="w-6 h-6 text-pink-500 hover:text-pink-700" />
+            <img src={instagram} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
           </a>
           <a href="https://github.com/Dinupdk/" target="_blank" rel="noopener noreferrer">
-            <img src='public\github.png' className="w-6 h-6 text-pink-500 hover:text-pink-700" />
+            <img src={github} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
           </a>
           <a href="https://x.com/Dineshpdk789/" target="_blank" rel="noopener noreferrer">
-            <img src='public\twitter.png' className="w-6 h-6 text-pink-500 hover:text-pink-700" />
+            <img src={twitter} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
           </a>
           <a href="mailto:dineshpdk7893@gmail.com" target="_blank" rel="noopener noreferrer">
-            <img src='.\.\public\gmail.png' className="w-6 h-6 text-pink-500 hover:text-pink-700" />
+            <img src={github} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
            
           </a>
 
