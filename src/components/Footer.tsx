@@ -75,7 +75,7 @@ const Footer = () => {
             <img src={twitter} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
           </a>
           <a href="mailto:dineshpdk7893@gmail.com" target="_blank" rel="noopener noreferrer">
-            <img src={github} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
+            <img src={gmail} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
            
           </a>
 
