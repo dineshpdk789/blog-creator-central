@@ -91,7 +91,6 @@ const Post = () => {
         )}
 
         <div className="prose prose-lg max-w-none dark:prose-invert">
-          {/* Enhanced styling for HTML content */}
           <div 
             dangerouslySetInnerHTML={{ __html: content }} 
             className="post-content" 
