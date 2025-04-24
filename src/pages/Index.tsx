@@ -17,7 +17,13 @@ const Index = () => {
     if (!search) return posts;
     const s = search.toLowerCase();
     return posts.filter(post =>
-      (post.title?.toLowerCase().includes(s) || post.excerpt?.toLowerCase().includes(s) || post.content?.toLowerCase().includes(s))
+      post.title?.toLowerCase().includes(s) || 
+      post.excerpt?.toLowerCase().includes(s) || 
+      post.content?.toLowerCase().includes(s) ||
+      // Add category search
+      post.categories?.some(category => 
+        category.toLowerCase().includes(s)
+      )
     );
   }, [search, posts]);
 
@@ -28,14 +34,14 @@ const Index = () => {
         <p className="text-gray-600 text-lg">Discover the latest articles and insights</p>
       </div>
       
-      {/* Search input */}
+      {/* Search input - Update placeholder to include categories */}
       <div className="mb-6 flex justify-center">
         <input
           className="border rounded-md px-4 py-2 w-full max-w-md focus:outline-none focus:ring-2 focus:ring-blog-primary"
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Search posts by title, summary, or content..."
+          placeholder="Search posts by title, summary, content, or categories..."
         />
       </div>
 
