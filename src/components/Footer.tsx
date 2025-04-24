@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import github from '../../public/github.png';
@@ -6,8 +5,6 @@ import linkedin from '../../public/linkedin.png';
 import gmail from '../../public/gmail.png';
 import twitter from '../../public/twitter.png';
 import instagram from '../../public/instagram.png';
-
-
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -48,14 +45,14 @@ const Footer = () => {
             <h3 className="font-semibold text-lg mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-600 hover:text-blog-primary transition-colors">
+                <Link to="/privacy-policy" className="text-gray-600 hover:text-blog-primary transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blog-primary transition-colors">
+                <Link to="/terms-of-service" className="text-gray-600 hover:text-blog-primary transition-colors">
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -76,10 +73,7 @@ const Footer = () => {
           </a>
           <a href="mailto:dineshpdk7893@gmail.com" target="_blank" rel="noopener noreferrer">
             <img src={gmail} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
-           
           </a>
-
-
         </div>
        
       </div>
@@ -97,4 +91,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +19,7 @@ interface PostFormProps {
     excerpt: string;
     slug: string;
     images: string[];
+    categories: string[];
   }) => void;
   isSubmitting?: boolean;
 }
@@ -33,6 +33,8 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
   const [images, setImages] = useState<string[]>(post?.images || []);
   const [uploading, setUploading] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const [categories, setCategories] = useState<string[]>(post?.categories || []);
+  const [newCategory, setNewCategory] = useState('');
   const contentAreaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropAreaRef = useRef<HTMLDivElement>(null);
@@ -55,6 +57,7 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
       excerpt,
       slug: slug.toLowerCase().replace(/[^\w-]+/g, '-'),
       images,
+      categories,
     });
   };
 
@@ -66,7 +69,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     setSlug(generatedSlug);
   };
 
-  // Helper for formatting: Inserts or wraps selection with tags
   const insertAtSelection = (before: string, after = before) => {
     const ta = contentAreaRef.current;
     if (!ta) return;
@@ -82,7 +84,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     }, 0);
   };
 
-  // HTML formatting helpers
   const handleFormat = (tag: string) => {
     if (tag === "ul") {
       insertAtSelection('<ul>\n  <li>', '</li>\n</ul>');
@@ -93,7 +94,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     }
   };
 
-  // For inserting image by URL or Unsplash ID
   const insertImageAtSelection = () => {
     const imageUrl = prompt("Enter image URL or Unsplash photo ID (e.g. photo-12345):");
     if (!imageUrl) return;
@@ -104,7 +104,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     }
   };
 
-  // Handle file upload
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -143,7 +142,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     }
   };
 
-  // Handle drag and drop
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     if (dropAreaRef.current) {
@@ -182,6 +180,17 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
     } else if (url) {
       insertAtSelection(`<a href="${url}" target="_blank">`, `${url}</a>`);
     }
+  };
+
+  const handleAddCategory = () => {
+    if (newCategory.trim() && !categories.includes(newCategory.trim())) {
+      setCategories([...categories, newCategory.trim()]);
+      setNewCategory('');
+    }
+  };
+
+  const handleRemoveCategory = (categoryToRemove: string) => {
+    setCategories(categories.filter(cat => cat !== categoryToRemove));
   };
 
   return (
@@ -238,7 +247,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
           <Label htmlFor="content">Content (HTML supported)</Label>
         </div>
 
-        {/* Toolbar */}
         <EditorToolbar
           isSubmitting={isSubmitting}
           onFormat={handleFormat}
@@ -250,7 +258,6 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
           onTogglePreview={() => setShowPreview(v => !v)}
         />
 
-        {/* Content Editor */}
         <ContentEditor
           value={content}
           onChange={setContent}
@@ -280,8 +287,50 @@ const PostForm = ({ post, onSubmit, isSubmitting = false }: PostFormProps) => {
         </div>
       </div>
 
-      {/* Preview section */}
       {showPreview && <ContentPreview content={content} />}
+
+      <div className="space-y-2">
+        <Label htmlFor="categories">Categories</Label>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {categories.map((category, index) => (
+            <span
+              key={index}
+              className="bg-secondary text-secondary-foreground px-2 py-1 rounded-md flex items-center gap-2"
+            >
+              #{category}
+              <button
+                type="button"
+                onClick={() => handleRemoveCategory(category)}
+                className="text-sm hover:text-destructive"
+              >
+                ×
+              </button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <Input
+            id="categories"
+            value={newCategory}
+            onChange={(e) => setNewCategory(e.target.value)}
+            placeholder="Add a category (e.g., technology)"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddCategory();
+              }
+            }}
+          />
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleAddCategory}
+            disabled={!newCategory.trim()}
+          >
+            Add
+          </Button>
+        </div>
+      </div>
 
       <div className="space-y-2">
         <Label>Uploaded Images</Label>
