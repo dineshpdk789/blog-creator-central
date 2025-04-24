@@ -11,6 +11,7 @@ export type Database = {
     Tables: {
       posts: {
         Row: {
+          categories: string[] | null
           content: string
           created_at: string | null
           excerpt: string
@@ -22,6 +23,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          categories?: string[] | null
           content: string
           created_at?: string | null
           excerpt: string
@@ -33,6 +35,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          categories?: string[] | null
           content?: string
           created_at?: string | null
           excerpt?: string

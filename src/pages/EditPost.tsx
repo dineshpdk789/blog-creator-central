@@ -44,7 +44,10 @@ const EditPost = () => {
     setIsSubmitting(true);
     
     try {
-      const updatedPost = await updatePost(id, data);
+      const updatedPost = await updatePost(id, {
+        ...data,
+        categories: data.categories || []
+      });
       toast({
         title: "Post updated",
         description: "Your post has been updated successfully.",

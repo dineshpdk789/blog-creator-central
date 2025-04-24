@@ -22,7 +22,10 @@ const CreatePost = () => {
     setIsSubmitting(true);
     
     try {
-      const newPost = await createPost(data);
+      const newPost = await createPost({
+        ...data,
+        categories: data.categories || []
+      });
       toast({
         title: "Post created",
         description: "Your post has been published successfully.",

@@ -71,6 +71,7 @@ export const createPost = async (post: Omit<Post, 'id' | 'created_at' | 'updated
     .from('posts')
     .insert({
       ...post,
+      categories: post.categories || [], // Ensure categories is always an array
       user_id: userData.user.id
     })
     .select()
@@ -90,6 +91,7 @@ export const updatePost = async (id: string, updates: Partial<Post>): Promise<Po
     .from('posts')
     .update({
       ...updates,
+      categories: updates.categories || [], // Ensure categories is always an array
       updated_at: new Date().toISOString()
     })
     .eq('id', id)
