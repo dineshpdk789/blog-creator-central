@@ -12,7 +12,7 @@ const Header = () => {
     <header className="border-b dark:border-gray-800 py-4">
       <div className="container flex items-center justify-between">
         <Link to="/" className="text-2xl font-bold text-blog-primary">
-          BloggerClone
+          Dinesh Blogs 
         </Link>
 
         <div className="flex items-center gap-4">
