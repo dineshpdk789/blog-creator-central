@@ -9,6 +9,7 @@ export const posts: Post[] = [
     excerpt: "Explore the fundamental concepts and tools needed to start your journey in web development.",
     slug: "getting-started-with-web-development",
     images: ["photo-1486312338219-ce68d2c6f44d", "photo-1498050108023-c5249f4df085"],
+    categories: ["programming", "web development", "beginner"],
     created_at: "2025-04-15T10:30:00Z",
     updated_at: "2025-04-15T10:30:00Z",
     user_id: "1"
@@ -20,6 +21,7 @@ export const posts: Post[] = [
     excerpt: "Discover how AI is evolving and the potential impact it will have on various industries in the coming years.",
     slug: "future-of-artificial-intelligence",
     images: ["photo-1461749280684-dccba630e2f6", "photo-1531297484001-80022131f5a1"],
+    categories: ["ai", "technology", "future"],
     created_at: "2025-04-10T14:45:00Z",
     updated_at: "2025-04-12T09:15:00Z",
     user_id: "1"
@@ -31,6 +33,7 @@ export const posts: Post[] = [
     excerpt: "Journey through some of the most spectacular natural phenomena and landscapes our planet has to offer.",
     slug: "exploring-natures-wonders",
     images: ["photo-1469474968028-56623f02e42e"],
+    categories: ["nature", "travel", "environment"],
     created_at: "2025-04-05T08:20:00Z",
     updated_at: "2025-04-05T08:20:00Z",
     user_id: "1"

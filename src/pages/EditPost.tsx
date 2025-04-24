@@ -37,6 +37,7 @@ const EditPost = () => {
     excerpt: string;
     slug: string;
     images: string[];
+    categories: string[];
   }) => {
     if (!id) return;
     

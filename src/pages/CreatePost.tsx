@@ -17,6 +17,7 @@ const CreatePost = () => {
     excerpt: string;
     slug: string;
     images: string[];
+    categories: string[];
   }) => {
     setIsSubmitting(true);
     
