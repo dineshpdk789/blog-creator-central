@@ -5,6 +5,9 @@ import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
 import { fetchPostBySlug } from '@/services/postService';
 import { formatDate } from '@/utils/date';
+import { Share2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 const Post = () => {
@@ -22,6 +25,27 @@ const Post = () => {
       navigate('/');
     }
   }, [post, isLoading, error, navigate]);
+
+  const handleShare = async () => {
+    const currentUrl = window.location.href;
+    
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: post?.title,
+          text: post?.excerpt || 'Check out this post!',
+          url: currentUrl,
+        });
+      } else {
+        await navigator.clipboard.writeText(currentUrl);
+        toast('Link copied to clipboard', {
+          description: 'You can now paste the link to share this post',
+        });
+      }
+    } catch (err) {
+      console.error('Error sharing:', err);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -49,7 +73,18 @@ const Post = () => {
   return (
     <Layout>
       <article className="max-w-4xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold mb-4">{title}</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold">{title}</h1>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleShare}
+            className="flex items-center gap-2"
+          >
+            <Share2 size={18} />
+            <span className="hidden sm:inline">Share</span>
+          </Button>
+        </div>
 
         <div className="text-gray-500 dark:text-gray-300 mb-6">
           <span>Posted on {formatDate(created_at)}</span>

@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ThemeToggle from './ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -16,8 +15,6 @@ const Header = () => {
         </Link>
 
         <div className="flex items-center gap-4">
-          <ThemeToggle />
-          
           {user ? (
             <div className="flex items-center gap-2">
               <Link to="/admin">
