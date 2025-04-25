@@ -15,15 +15,6 @@ interface CommentsProps {
   postId: string;
 }
 
-// Mock comments data - in a real app this would come from a database
-const mockComments: Record<string, Comment[]> = {
-  // Sample comments for demonstration
-  "default": [
-    { id: "1", name: "Jane Doe", text: "Great article! Very informative.", date: "2023-04-20T12:30:00" },
-    { id: "2", name: "John Smith", text: "I learned a lot from this post. Looking forward to more content like this!", date: "2023-04-19T10:15:00" }
-  ],
-};
-
 const Comments = ({ postId }: CommentsProps) => {
   const [name, setName] = useState('');
   const [comment, setComment] = useState('');
@@ -34,13 +25,8 @@ const Comments = ({ postId }: CommentsProps) => {
     const savedComments = localStorage.getItem(`comments-${postId}`);
     if (savedComments) {
       setComments(JSON.parse(savedComments));
-    } else {
-      // If no saved comments, use mock comments
-      const initialComments = mockComments[postId] || mockComments.default || [];
-      setComments(initialComments);
-      // Save initial comments to localStorage
-      localStorage.setItem(`comments-${postId}`, JSON.stringify(initialComments));
     }
+    // No default comments anymore
   }, [postId]);
 
   // Save comments to localStorage whenever they change

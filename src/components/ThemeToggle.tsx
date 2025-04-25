@@ -8,15 +8,20 @@ const ThemeToggle = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // UseEffect to prevent hydration mismatch
+  // UseEffect only for setting mounted to true once
   useEffect(() => {
     setMounted(true);
+    // Set default theme if none exists
+    if (!theme) {
+      setTheme("light");
+    }
     console.log("Theme Toggle mounted, current theme:", theme);
-  }, [theme]);
+  }, []);
 
-  // Force a re-render when the theme changes
+  // Separate effect for theme changes
   useEffect(() => {
-    // This ensures our component re-renders when theme changes
+    if (!mounted) return;
+    
     const htmlElement = document.documentElement;
     if (theme === 'dark') {
       htmlElement.classList.add('dark');
@@ -25,7 +30,7 @@ const ThemeToggle = () => {
       htmlElement.classList.remove('dark');
       console.log("Removing dark class from HTML element");
     }
-  }, [theme]);
+  }, [theme, mounted]);
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
