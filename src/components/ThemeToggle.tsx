@@ -13,6 +13,17 @@ const ThemeToggle = () => {
     setMounted(true);
   }, []);
 
+  // Force a re-render when the theme changes
+  useEffect(() => {
+    // This ensures our component re-renders when theme changes
+    const htmlElement = document.documentElement;
+    if (theme === 'dark') {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+  }, [theme]);
+
   if (!mounted) {
     // Return a placeholder with same dimensions to avoid layout shift
     return (
