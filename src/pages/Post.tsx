@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -9,6 +8,7 @@ import { Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
+import Comments from '@/components/Comments';
 
 const Post = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -131,6 +131,9 @@ const Post = () => {
             className="post-content" 
           />
         </div>
+        
+        {/* Add Comments section */}
+        {post && <Comments postId={post.id} />}
       </article>
     </Layout>
   );
