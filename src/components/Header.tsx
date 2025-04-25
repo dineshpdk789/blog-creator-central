@@ -3,7 +3,6 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import ThemeToggle from './ThemeToggle';
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -28,15 +27,11 @@ const Header = () => {
               >
                 Logout
               </Button>
-              <ThemeToggle />
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link to="/auth">
-                <Button variant="outline" size="sm">Admin Login</Button>
-              </Link>
-              <ThemeToggle />
-            </div>
+            <Link to="/auth">
+              <Button variant="outline" size="sm">Admin Login</Button>
+            </Link>
           )}
         </div>
       </div>
