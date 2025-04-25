@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
@@ -27,10 +27,28 @@ const mockComments: Record<string, Comment[]> = {
 const Comments = ({ postId }: CommentsProps) => {
   const [name, setName] = useState('');
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<Comment[]>(() => {
-    // Get comments for this post, or use default comments for demonstration
-    return mockComments[postId] || mockComments.default || [];
-  });
+  const [comments, setComments] = useState<Comment[]>([]);
+
+  // Load comments from localStorage on component mount
+  useEffect(() => {
+    const savedComments = localStorage.getItem(`comments-${postId}`);
+    if (savedComments) {
+      setComments(JSON.parse(savedComments));
+    } else {
+      // If no saved comments, use mock comments
+      const initialComments = mockComments[postId] || mockComments.default || [];
+      setComments(initialComments);
+      // Save initial comments to localStorage
+      localStorage.setItem(`comments-${postId}`, JSON.stringify(initialComments));
+    }
+  }, [postId]);
+
+  // Save comments to localStorage whenever they change
+  useEffect(() => {
+    if (comments.length > 0) {
+      localStorage.setItem(`comments-${postId}`, JSON.stringify(comments));
+    }
+  }, [comments, postId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +67,11 @@ const Comments = ({ postId }: CommentsProps) => {
     };
 
     // Add to comments list
-    setComments(prevComments => [newComment, ...prevComments]);
+    const updatedComments = [newComment, ...comments];
+    setComments(updatedComments);
+    
+    // Save to localStorage
+    localStorage.setItem(`comments-${postId}`, JSON.stringify(updatedComments));
     
     toast.success('Comment submitted successfully!');
     setName('');

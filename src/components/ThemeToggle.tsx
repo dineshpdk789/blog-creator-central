@@ -11,7 +11,8 @@ const ThemeToggle = () => {
   // UseEffect to prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
-  }, []);
+    console.log("Theme Toggle mounted, current theme:", theme);
+  }, [theme]);
 
   // Force a re-render when the theme changes
   useEffect(() => {
@@ -19,10 +20,18 @@ const ThemeToggle = () => {
     const htmlElement = document.documentElement;
     if (theme === 'dark') {
       htmlElement.classList.add('dark');
+      console.log("Adding dark class to HTML element");
     } else {
       htmlElement.classList.remove('dark');
+      console.log("Removing dark class from HTML element");
     }
   }, [theme]);
+
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    console.log("Toggling theme from", theme, "to", newTheme);
+    setTheme(newTheme);
+  };
 
   if (!mounted) {
     // Return a placeholder with same dimensions to avoid layout shift
@@ -38,7 +47,7 @@ const ThemeToggle = () => {
       variant="ghost" 
       size="icon" 
       aria-label="Toggle theme"
-      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      onClick={toggleTheme}
       className="!ml-2"
     >
       {theme === "dark" ? <Sun className="h-[1.2rem] w-[1.2rem] text-yellow-400" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
