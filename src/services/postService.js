@@ -1,5 +1,5 @@
 
-import { getAllPosts, getPostBySlug, getPostById, addPost, updatePost, deletePost } from '@/data/posts';
+import { getAllPosts, getPostBySlug, getPostById, addPost, updatePost, deletePost as deletePostFromData } from '@/data/posts';
 
 // Mock API functions to fetch posts
 export async function fetchAllPosts() {
@@ -21,8 +21,7 @@ export async function fetchPostBySlug(slug) {
 export async function fetchPostById(id) {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 500));
-  const posts = getAllPosts();
-  const post = posts.find(p => p.id === id);
+  const post = getPostById(id);
   
   if (!post) {
     throw new Error('Post not found');
@@ -49,10 +48,10 @@ export async function updatePostById(id, postData) {
   return updated;
 }
 
-export async function removePost(id) {
+export async function deletePost(id) {
   // Simulate network delay
   await new Promise(resolve => setTimeout(resolve, 1000));
-  const success = deletePost(id);
+  const success = deletePostFromData(id);
   
   if (!success) {
     throw new Error('Post not found');
