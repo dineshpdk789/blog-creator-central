@@ -59,3 +59,14 @@ export async function deletePost(id) {
   
   return { success };
 }
+
+// Add the missing uploadImage function
+export async function uploadImage(file) {
+  // Simulate network delay for file upload
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  
+  // Create a mock URL for the uploaded image
+  // In a real implementation, this would handle the actual file upload
+  // and return the URL from a cloud storage service
+  return URL.createObjectURL(file);
+}
