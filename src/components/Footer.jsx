@@ -66,7 +66,7 @@ const Footer = () => {
           <a href="https://www.instagram.com/dineshpdk789/" target="_blank" rel="noopener noreferrer">
             <img src={instagram} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
           </a>
-          <a href="https://github.com/Dinupdk/" target="_blank" rel="noopener noreferrer">
+          <a href="https://github.com/dineshpdk789/" target="_blank" rel="noopener noreferrer">
             <img src={github} className="w-6 h-6 text-pink-500 hover:text-pink-700" />
           </a>
           <a href="https://x.com/Dineshpdk789/" target="_blank" rel="noopener noreferrer">
