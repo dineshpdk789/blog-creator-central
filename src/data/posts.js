@@ -49,6 +49,11 @@ export const getPostBySlug = (slug) => {
   return posts.find(post => post.slug === slug);
 };
 
+// Add the missing getPostById function
+export const getPostById = (id) => {
+  return posts.find(post => post.id === id);
+};
+
 export const addPost = (post) => {
   const newPost = {
     ...post,
@@ -81,3 +86,4 @@ export const deletePost = (id) => {
   posts.splice(index, 1);
   return true;
 };
+
