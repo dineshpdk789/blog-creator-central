@@ -1,72 +1,128 @@
 
-import { getAllPosts, getPostBySlug, getPostById, addPost, updatePost as updatePostFromData, deletePost as deletePostFromData } from '@/data/posts';
+import { supabase } from "@/integrations/supabase/client";
 
-// Mock API functions to fetch posts
+// Fetch all posts
 export async function fetchAllPosts() {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return getAllPosts();
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 }
 
 export async function fetchPostBySlug(slug) {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const post = getPostBySlug(slug);
-  if (!post) {
-    throw new Error('Post not found');
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('slug', slug)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      throw new Error('Post not found');
+    }
+    throw new Error(error.message);
   }
-  return post;
+
+  return data;
 }
 
 export async function fetchPostById(id) {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  const post = getPostById(id);
-  
-  if (!post) {
-    throw new Error('Post not found');
+  const { data, error } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('id', id)
+    .single();
+
+  if (error) {
+    if (error.code === 'PGRST116') {
+      throw new Error('Post not found');
+    }
+    throw new Error(error.message);
   }
-  
-  return post;
+
+  return data;
 }
 
 export async function createPost(postData) {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  return addPost(postData);
+  const { data: userData, error: userError } = await supabase.auth.getUser();
+  
+  if (userError || !userData.user) {
+    throw new Error('User not authenticated');
+  }
+  
+  const { data, error } = await supabase
+    .from('posts')
+    .insert({
+      ...postData,
+      categories: postData.categories || [],
+      user_id: userData.user.id
+    })
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
 }
 
 export async function updatePost(id, postData) {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  const updated = updatePostFromData(id, postData);
-  
-  if (!updated) {
-    throw new Error('Post not found');
+  const { data, error } = await supabase
+    .from('posts')
+    .update({
+      ...postData,
+      categories: postData.categories || [],
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(error.message);
   }
-  
-  return updated;
+
+  return data;
 }
 
 export async function deletePost(id) {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  const success = deletePostFromData(id);
-  
-  if (!success) {
-    throw new Error('Post not found');
+  const { error } = await supabase
+    .from('posts')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(error.message);
   }
-  
-  return { success };
+
+  return { success: true };
 }
 
-// Add the missing uploadImage function
 export async function uploadImage(file) {
-  // Simulate network delay for file upload
-  await new Promise(resolve => setTimeout(resolve, 1500));
-  
-  // Create a mock URL for the uploaded image
-  // In a real implementation, this would handle the actual file upload
-  // and return the URL from a cloud storage service
-  return URL.createObjectURL(file);
+  // Generate a unique file name based on timestamp and original name
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+  const filePath = `${fileName}`;
+
+  const { error } = await supabase.storage
+    .from('blog_images')
+    .upload(filePath, file);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  // Get public URL
+  const { data } = supabase.storage
+    .from('blog_images')
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
 }
