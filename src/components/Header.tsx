@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import ThemeToggle from './ThemeToggle';
+
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -12,7 +12,7 @@ const Header = () => {
     <header className="border-b dark:border-gray-800 py-4">
       <div className="container flex items-center justify-between">
         <Link to="/" className="text-2xl font-bold text-blog-primary">
-          Dinesh Blogs 
+          Coding Blogs 
         </Link>
 
         <div className="flex items-center gap-4">
@@ -28,14 +28,14 @@ const Header = () => {
               >
                 Logout
               </Button>
-              <ThemeToggle />
+              
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <Link to="/auth">
                 <Button variant="outline" size="sm">Admin Login</Button>
               </Link>
-              <ThemeToggle />
+              
             </div>
           )}
         </div>
