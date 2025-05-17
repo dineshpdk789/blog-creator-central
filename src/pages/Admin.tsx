@@ -91,7 +91,7 @@ const Admin = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data?.data.map((post) => (
+              {data?.data.map((post: Post) => (
                 <TableRow key={post.id}>
                   <TableCell>
                     <Link 

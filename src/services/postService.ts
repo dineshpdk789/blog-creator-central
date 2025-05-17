@@ -32,7 +32,7 @@ export const fetchAllPosts = async (
 ): Promise<PostsResponse> => {
   try {
     const { page = 1, pageSize = 10 } = pagination || {};
-    const { category, search, status, sortBy = 'created_at', sortOrder = 'desc' } = filters || {};
+    const { category, search, sortBy = 'created_at', sortOrder = 'desc' } = filters || {};
     
     // Start building the query
     let query = supabase
@@ -48,15 +48,8 @@ export const fetchAllPosts = async (
       query = query.or(`title.ilike.%${search}%,content.ilike.%${search}%,excerpt.ilike.%${search}%`);
     }
     
-    if (status) {
-      query = query.eq('status', status);
-    } else {
-      // Default to showing only published posts for non-admins
-      const { data: userData } = await supabase.auth.getUser();
-      if (!userData?.user) {
-        query = query.eq('status', 'published');
-      }
-    }
+    // Note: We're temporarily removing the status filter since the column doesn't exist yet
+    // We'll add it back after the SQL migration is run
     
     // Calculate pagination
     const from = (page - 1) * pageSize;
@@ -154,7 +147,6 @@ export const createPost = async (post: Omit<Post, 'id' | 'created_at' | 'updated
         ...post,
         categories: post.categories || [],
         images: post.images || [],
-        status: post.status || 'draft', // Default to draft if not specified
         user_id: userData.user.id
       })
       .select()
@@ -272,7 +264,7 @@ export const uploadImage = async (file: File): Promise<string> => {
   }
 };
 
-// Change post status
-export const changePostStatus = async (id: string, status: 'draft' | 'published' | 'archived'): Promise<Post> => {
-  return updatePost(id, { status });
-};
+// Change post status - temporarily commented out until status column is added
+// export const changePostStatus = async (id: string, status: 'draft' | 'published' | 'archived'): Promise<Post> => {
+//   return updatePost(id, { status });
+// };

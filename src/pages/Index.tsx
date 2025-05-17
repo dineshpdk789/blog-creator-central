@@ -33,12 +33,14 @@ const Index = () => {
     queryKey: ['posts', pagination, filters],
     queryFn: () => fetchAllPosts(pagination, filters),
     staleTime: 1000 * 60 * 5, // 5 minutes
-    onError: (err: any) => {
-      toast({
-        title: 'Error',
-        description: err.message || 'Failed to load posts',
-        variant: 'destructive'
-      });
+    meta: {
+      onError: (err: any) => {
+        toast({
+          title: 'Error',
+          description: err.message || 'Failed to load posts',
+          variant: 'destructive'
+        });
+      }
     }
   });
 
@@ -117,8 +119,6 @@ const Index = () => {
   }, [data, pagination.page]);
 
   return (
-    // ... keep existing code (Layout, search form, filters display, etc.)
-
     <Layout>
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Welcome to Dinesh Blogs</h1>
