@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import Layout from '@/components/Layout';
@@ -33,7 +32,6 @@ const Index = () => {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['posts', pagination, filters],
     queryFn: () => fetchAllPosts(pagination, filters),
-    keepPreviousData: true,
     staleTime: 1000 * 60 * 5, // 5 minutes
     onError: (err: any) => {
       toast({
@@ -119,6 +117,8 @@ const Index = () => {
   }, [data, pagination.page]);
 
   return (
+    // ... keep existing code (Layout, search form, filters display, etc.)
+
     <Layout>
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Welcome to Dinesh Blogs</h1>

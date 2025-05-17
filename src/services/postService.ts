@@ -4,7 +4,7 @@ import { FilterParams, PaginationParams, Post, PostsResponse, ApiError } from "@
 import { PostgrestError } from "@supabase/supabase-js";
 
 // Helper function to handle Supabase errors
-const handleSupabaseError = (error: PostgrestError | null, notFoundMessage?: string): never => {
+const handleSupabaseError = (error: PostgrestError | null, notFoundMessage?: string) => {
   if (!error) return;
   
   console.error('Supabase error:', error);
@@ -27,12 +27,12 @@ const handleSupabaseError = (error: PostgrestError | null, notFoundMessage?: str
 
 // Get all posts with pagination and filtering
 export const fetchAllPosts = async (
-  pagination: PaginationParams = {},
-  filters: FilterParams = {}
+  pagination?: PaginationParams,
+  filters?: FilterParams
 ): Promise<PostsResponse> => {
   try {
-    const { page = 1, pageSize = 10 } = pagination;
-    const { category, search, status, sortBy = 'created_at', sortOrder = 'desc' } = filters;
+    const { page = 1, pageSize = 10 } = pagination || {};
+    const { category, search, status, sortBy = 'created_at', sortOrder = 'desc' } = filters || {};
     
     // Start building the query
     let query = supabase

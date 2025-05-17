@@ -10,6 +10,7 @@ import { fetchAllPosts, deletePost } from '@/services/postService';
 import { formatDate } from '@/utils/date';
 import { PenIcon, TrashIcon, PlusIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Post } from '@/types/blog';
 
 const Admin = () => {
   const navigate = useNavigate();
@@ -22,9 +23,9 @@ const Admin = () => {
     title: '',
   });
   
-  const { data: posts = [], isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ['posts'],
-    queryFn: fetchAllPosts
+    queryFn: () => fetchAllPosts()
   });
   
   const deleteMutation = useMutation({
@@ -75,7 +76,7 @@ const Admin = () => {
         <div className="text-center py-12">
           <p className="text-red-500">Error loading posts. Please try again later.</p>
         </div>
-      ) : posts.length === 0 ? (
+      ) : data?.data.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No posts yet. Create your first post!</p>
         </div>
@@ -90,7 +91,7 @@ const Admin = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {posts.map((post) => (
+              {data?.data.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell>
                     <Link 
